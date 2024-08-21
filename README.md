@@ -27,7 +27,7 @@ The following code demonstrates how I used Linux commands to determine the exist
 Next, I checked whether any hidden files and directories existed within the projects directory.
 
 ![check any hidden file](https://github.com/user-attachments/assets/6a19b715-73ae-4128-88d7-eb54f4377bd8)
-*Ref 1: Check hidden file and directory details*
+*Ref 2: Check hidden file and directory details*
 - I used the ls command with the -a option to display hidden files and directories.
 - The output of my command indicates that there were two hidden directories, **_"."_** and **_".."_**, along with one hidden file named **_".project_x.txt"_**.
 
@@ -38,43 +38,53 @@ The 10-character string can be deconstructed to determine who is authorized to a
 - **5th-7th characters:** These characters indicate the read (**r**), write (**w**), and execute (**x**) permissions for the **_"group"_**. When one of these characters is a hyphen (**-**) instead, it indicates that this permission is not granted for the **_"group"_**.
 - **8th-10th characters:** These characters indicate the read (**r**), write (**w**), and execute (**x**) permissions for **_"other"_**. This owner type consists of all other users on the system apart from the **_"User"_** and the **_"group"_**. When one of these characters is a hyphen (**-**) instead, that indicates that this permission is not granted for **_"other"_**.
 
-For example, the file permissions for **_project_t.txt_** ( in *Ref 1: Check file and directory details*) are **-rw-rw-r--**. Since the first character is a hyphen (**-**), this indicates that **_project_t.txt_** is a file, not a directory. The second, fifth, and eighth characters are all **r**, which indicates that user, group, and other all have read permissions. The third and sixth characters are **w**, which indicates that only the user and group have write permissions. No one has execute permissions for **_project_t.txt_**.
+For example, the file permissions for **_"project_t.txt"_** ( in *Ref 1: Check file and directory details*) are **-rw-rw-r--**. Since the first character is a hyphen (**-**), this indicates that **_"project_t.txt"_** is a file, not a directory. The second, fifth, and eighth characters are all **r**, which indicates that **_"user"_**, **_"group"_**, and **_"other"_** all have read permissions. The third and sixth characters are **w**, which indicates that only the **_"user"_** and **_"group"_** have write permissions. No one has execute (**x**) permissions for **_"project_t.txt"_**.
 
-### 2. Retrieve Login Attempts Outside of Mexico:
-Another suspicious activity involved login attempts that the team determined did not originate in Mexico. Therefore, I investigated login attempts that occurred outside of Mexico.
-As demonstrated below, I used SQL filters to create a query that identifies all login attempts outside of Mexico:
+### 2. Change File Permissions:
+The organization requested that the **_"other"_** owner type should not have write (**w**) access to any of the files. I checked for any files in the projects directory with write (**w**) permission for the **_"other"_** owner type and found that **_"project_k.txt"_** had such permission. The code below shows how I removed the write permission:
 
-![SQL retrieve login attempts outside of mexico](https://github.com/user-attachments/assets/0bfd8e6d-824c-4ef2-884e-04179f6b135e)
-*Ref 3: SQL query*
+![change file permision without hidden files](https://github.com/user-attachments/assets/33928143-5fbc-4ed9-bc42-c38afcb039be)
+*Ref 3: Change file permissions*
 
-In the screenshot, the first three lines represent my query, and the remaining portion shows a sample of the output. I started by selecting all data from the **_log_in_attempts_** table using the **_SELECT *_** and **_FROM_** keywords. Then, I used a **_WHERE_** clause with **_NOT_** to filter for countries other than Mexico. I used **_LIKE_** with **_MEX%_** as the pattern to match because the dataset represents Mexico as **_MEX_** and **_MEXICO_**. The percentage sign **_%_** represents any number of unspecified characters when used with **_LIKE_**. 
+- The first line in the screenshot shows the command I entered: **_chmod o-w project_k.txt_**
+- The **_chmod_** command changes the permissions on files and directories. The first argument indicates what permission should be changed, and the second argument specifies the file or directory. The **o** represents **_"other"_** the **-w** removes write access, and **_"project_k.txt"_** is the file being modified.
+- The second line in the screenshot displays the command I entered: **_ls -l_**. I used this to review the updates I made. The other lines display the output of the second command.
 
-### 4. Retrieve Employees in Marketing:
-My team needed to perform security updates on specific employee machines in the Marketing department located in the East building. I was responsible for gathering information on these employee machines and queried the **_employees_** table.
-As demonstrated below, I used SQL filters to create a query that identifies all employees in the Marketing department across offices in the East building:
+The organization also required that **_"project_m.txt"_** should not be readable or writable by the **_"group"_** or **_"other"_** owner types. Since **_"project_m.txt"_** had read permission for the **_"group"_**, I entered the following commands: **_chmod g-r project_m.txt_** and **_ls -l_**.
+- The **_chmod g-r project_m.txt_** command removes read (**r**) permission from the **_"group"_** (**g**) owner type.
+- The **_ls -l_** command was used to review the updates I made. The output of this command confirms that the **_"group"_** no longer had read access to the **_"project_m.txt"_** file as shown in the screenshot below:
 
-![SQL retrieve employees in marketing department in the east building](https://github.com/user-attachments/assets/f0fdf982-fce0-46f4-85bd-57def401daff)
-*Ref 4: SQL query*
+![change file permision without hidden file 2](https://github.com/user-attachments/assets/f0ae72aa-eb4f-4e1f-8a41-850de521900d)
+*Ref 4: Change file permissions*
+  
+### 3. Change File Permissions on a Hidden File:
+The organization stated that **_".project_x.txt"_**, a hidden archived file, should not be writable by anyone. However, both the **_"user"_** and **_"group"_** owner type should still have read access to it.
+I first checked the current permissions on the hidden file using the following command:
 
-In the screenshot, the first three lines represent my query, and the remaining portion shows a sample of the output. I started by selecting all data from the **_employees_** table using the **_SELECT *_** and **_FROM_** keywords. Then, I used a **_WHERE_** clause with **_AND_** to filter for employees who work in the Marketing department and in the East building. I used **_LIKE 'East%'_** to match the data in the **_office_** column, which represents the East building with a specific office number. The first condition, **_department = 'Marketing'_**, filters for employees in the Marketing department. The second condition, **_office LIKE 'East%'_**, filters for employees in the East building.
+![check files and directories including hidden ones](https://github.com/user-attachments/assets/11ce5f1e-b776-401a-8c41-a03eec793ee6)
+*Ref 5: checked the current permissions on the hidden file*
 
-### 5. Retrieve Employees in Finance or Sales:
-The machines for employees in the Finance and Sales departments also need to be updated. Since a different security update is needed, I had to get information on employees only from these two departments. As shown below, I used SQL filters to create a query that identifies all employees in the Sales or Finance departments:
+- The first line in the screenshot shows the command **_ls -la_**, which lists all files and directories (including hidden ones) with their permissions.
+- The output of my command indicates that **_".project_x.txt_"** had write permission for both the **_"user"_** and **_"group"_**, but the **_"group"_** did not have read permission.
 
-![SQL retrieve employees in finance or salse department](https://github.com/user-attachments/assets/b58ba27d-bf49-46b0-adf5-704c3887855e)
-*Ref 5: SQL query*
+To modify the permissions, I entered the following command:
 
-In the screenshot, the first three lines represent my query, and the remaining portion shows a sample of the output. I started by selecting all data from the **_employees_** table using the **_SELECT *_** and **_FROM_** keywords. Then, I used a **_WHERE_** clause with **_OR_** to filter for employees in either the Finance or Sales departments. The first condition, **_department = 'Finance'_**, filters for employees in the Finance department. The second condition, **_department = 'Sales'_**, filters for employees in the Sales department.
+![change permission on hidden file](https://github.com/user-attachments/assets/62e1c941-38c4-4d6b-87f6-39e9b117a83d)
+*Ref 6: Change file permissions on a hidden file*
 
-### 6. Retrieve All Employees Not in IT:
-My team needed to make one more update to employee machines. Employees in the Information Technology (IT) department had already received this update, so the update was required for employees in all other departments. I used SQL filters to create a query that identifies all employees not in the IT department:
+- The **_chmod u-w,g-w,g+r .project_x.txt_** removes write permission from the **_"user"_** (**u-w**) and **_"group"_** (**g-w**) while adding read permission for the **_"group"_** (**g+r**) to the **_".project_x.txt_** file".
+- The **_ls -l_** command was used to review the updates I made.
 
-![SQL retrieve all employees not in IT department](https://github.com/user-attachments/assets/909ccef4-b2f7-499b-8316-79138988c1ec)
-*Ref 6: SQL query*
+### 4. Change Directory Permissions:
+The organization requested that the execute permission for the **_"group"_** owner type be removed from the **_"drafts"_** directory.
 
-I started by selecting all data from the **_employees_** table using the **_SELECT *_** and **_FROM_** keywords. Then, I used a **_WHERE_** clause with **_NOT_** to filter out employees not in the IT department.
+![change directory permission](https://github.com/user-attachments/assets/0020e42d-7915-4033-a9be-4defd1a7f222)
+*Ref 7: Change directory permissions*
+
+- To remove the execute (**x**) permission, I used the command: **_chmod g-x drafts_**. The **g** represents the **_"group"_**, and **-x** removes execute permission from the **_"draft"_** directory.
+- I used the **_ls -l_** command to review the updates I made. The output of my command confirms that the execute permission for the **_"group"_** had been removed from the **_"drafts"_** directory.
 
 
 ## Summary
 
-In this project, I applied SQL filters to extract specific information on login attempts and employee machines. I worked with two different tables, **_log_in_attempts_** and **_employees_**, using the **_AND_**, **_OR_**, and **_NOT_** operators to filter for the specific information required for each task. Additionally, I used the **_LIKE_** operator and the **_%_** wildcard to match patterns in the data.
+I successfully updated the permissions of various files and directories in the **_projects_** directory to match the organization’s security requirements. I began by using the **_ls -l_** and **_ls -la_** commands to audit existing permissions and then applied the **_chmod_** command multiple times to implement the necessary permission changes for files and directories.
