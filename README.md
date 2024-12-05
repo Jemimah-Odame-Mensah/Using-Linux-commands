@@ -1,6 +1,6 @@
 # File permissions in Linux
 
-As part of my cybersecurity training, I worked on updating file and directory permissions in Linux. The scenario was designed to simulate a real-world organizational environment, allowing me to practice securing sensitive files by enforcing proper authorization levels and aligning with security policies.
+As part of my Google cybersecurity training, I worked on updating file and directory permissions in Linux. The scenario was designed to simulate a real-world organizational environment, allowing me to practice securing sensitive files by enforcing proper authorization levels and aligning with security policies.
 
 ## Project Description
 
